@@ -1,8 +1,9 @@
-// server.js
-const express = require("express");
-const mongoose = require("mongoose");
-const dotenv = require("dotenv");
-const cors = require("cors");
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
+import authRoutes from "./routes/auth.js";
+import playerRoutes from "./routes/players.js";
 
 dotenv.config();
 
@@ -10,7 +11,16 @@ const app = express();
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: ['http://localhost:8081', 'exp://localhost:8081'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/players", playerRoutes);
 
 // Simple route
 app.get("/", (req, res) => {
@@ -19,9 +29,7 @@ app.get("/", (req, res) => {
 
 // MongoDB connection
 mongoose
-  .connect(process.env.MONGO_URI, {
-    // options no longer required in newer versions
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("✅ MongoDB Connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
