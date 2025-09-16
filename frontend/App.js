@@ -1,54 +1,20 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
-import LoginScreen from './screens/LoginScreen';
-import RegisterScreen from './screens/RegisterScreen';
-import PlayerDashboard from './screens/PlayerDashboard';
-import ProfileEditor from './screens/ProfileEditor'; // ADD THIS IMPORT
-import { PaperProvider } from 'react-native-paper';
+import React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import Login from "./screens/LoginScreen";          // Changed from "./screens/Login"
+import CreateAccount from "./screens/RegisterScreen"; // Changed from "./screens/CreateAccount"
+import PlayerDashboard from "./screens/PlayerDashboard";
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <PaperProvider>
-      <NavigationContainer>
-        <Stack.Navigator initialRouteName="Login">
-          <Stack.Screen 
-            name="Login" 
-            component={LoginScreen}
-            options={{ headerShown: false }}
-          />
-          <Stack.Screen 
-            name="Register" 
-            component={RegisterScreen}
-            options={{ 
-              title: 'Create Account',
-              headerStyle: { backgroundColor: '#0A1F44' },
-              headerTintColor: '#fff',
-            }}
-          />
-          <Stack.Screen 
-            name="Dashboard" 
-            component={PlayerDashboard}
-            options={{ 
-              title: 'My Dashboard',
-              headerStyle: { backgroundColor: '#0A1F44' },
-              headerTintColor: '#fff',
-              headerLeft: null
-            }}
-          />
-          <Stack.Screen 
-            name="ProfileEditor" 
-            component={ProfileEditor}
-            options={{ 
-              title: 'Edit Profile',
-              headerStyle: { backgroundColor: '#0A1F44' },
-              headerTintColor: '#fff',
-            }}
-          />
-        </Stack.Navigator>
-      </NavigationContainer>
-    </PaperProvider>
+    <NavigationContainer>
+      <Stack.Navigator initialRouteName="Login">
+        <Stack.Screen name="Login" component={Login} />
+        <Stack.Screen name="CreateAccount" component={CreateAccount} />
+        <Stack.Screen name="PlayerDashboard" component={PlayerDashboard} />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }

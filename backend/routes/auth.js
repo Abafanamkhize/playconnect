@@ -1,78 +1,75 @@
-// routes/auth.js
-import express from 'express';
-import User from '../models/User.js';
-import generateToken from '../utils/generateToken.js';
-import { protect } from '../middleware/authMiddleware.js';
+import express from "express";
+import User from "../models/User.js";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-// SIGNUP/REGISTER route
-router.post('/register', async (req, res) => {
+// SIGNUP/REGISTER
+router.post("/register", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
-    
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: "User already exists" });
     }
-    
-    const user = new User({ name, email, password, role });
+
+    const user = new User({
+      name,
+      email,
+      password,
+      role,
+    });
+
     await user.save();
-    
-    const token = generateToken(user._id);
-    
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
     const userResponse = { ...user.toObject() };
     delete userResponse.password;
-    
-    res.status(201).json({ 
-      message: 'User created successfully', 
-      user: userResponse,
-      token 
+
+    res.status(201).json({
+      token,
+      user: userResponse
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Register error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
-// LOGIN route
-router.post('/login', async (req, res) => {
+// LOGIN
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
-    
+
+    // Use the User model's comparePassword method
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
-    
-    const token = generateToken(user._id);
-    
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
     const userResponse = { ...user.toObject() };
     delete userResponse.password;
-    
-    res.json({ 
-      message: 'Login successful', 
-      user: userResponse,
-      token 
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
-  }
-});
 
-// PROTECTED ROUTE (test)
-router.get('/profile', protect, async (req, res) => {
-  try {
     res.json({
-      message: 'Access granted to protected route',
-      user: req.user
+      token,
+      user: userResponse
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    console.error("Login error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
